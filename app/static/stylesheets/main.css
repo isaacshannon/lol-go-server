@@ -1,0 +1,18 @@
+body {
+    background-color: #15171a;
+    height: 100%
+}
+
+.center {
+  display: block;
+  margin: auto;
+}
+
+.response {
+    position: absolute;
+  bottom: 0;
+}
+
+.button-capture {
+    background: rgb(223, 117, 20); /* this is an orange */
+}

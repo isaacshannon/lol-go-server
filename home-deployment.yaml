@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: home-app
+  template:
+    metadata:
+      labels:
+        run: home-app
+    spec:
+      containers:
+      - name: home-app
+        image: gcr.io/leagueai/home-app:v1
+        imagePullPolicy: Always
+        env:
+          - name: DB_URI
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: DB_URI
+        resources:
+          requests:
+            memory: "900Mi"
+            cpu: "600m"
+          limits:
+            memory: "1000Mi"
+            cpu: "700"
+      nodeSelector:
+        component: web

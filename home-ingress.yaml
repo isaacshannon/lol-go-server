@@ -1,0 +1,11 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: league-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: 104.197.59.31
+    networking.gke.io/managed-certificates: league-certificate
+spec:
+  backend:
+    serviceName: home-nodeport-service
+    servicePort: 80

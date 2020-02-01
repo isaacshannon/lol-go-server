@@ -1,0 +1,23 @@
+{{define "body"}}
+
+<div class="camera">
+    <div class="pure-u-1">
+        <button id="startbutton" class="button-capture pure-button center">Start Predictions</button>
+        <video id="video" hidden>Video stream not available.</video>
+    </div>
+</div>
+
+<canvas id="canvas" hidden>
+</canvas>
+
+
+<div class="pure-g">
+    <div class="response center">
+        <img id="response" src='/static/gankai.png' alt="The prediction response.">
+    </div>
+</div>
+
+
+<script src='/static/scripts/capture.js'></script>
+
+{{end}}
