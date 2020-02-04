@@ -58,8 +58,9 @@ function startUngank() {
                     y1: mapY1,
                 }
             }).done(function(d) {
-                console.log(d)
+                console.log(d);
                 resPhoto.setAttribute('src', d["result"]);
+                predictPositions();
             });
         } else {
             clearphoto();
