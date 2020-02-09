@@ -37,6 +37,36 @@ function startUngank() {
         }
     }
 
+    function initialPredictPositions(){
+        var context = canvas.getContext('2d');
+        if (width && height) {
+            canvas.width = width;
+            canvas.height = height;
+            context.drawImage(video, 0, 0, width, height);
+
+            var canvasData = canvas.toDataURL('image/png');
+
+            $.ajax({
+                type: "POST",
+                url: "https://ungank.com/findmap",
+                data: {
+                    userID: userID,
+                    imgBase64: canvasData
+                }
+            }).done(function(d) {
+                console.log(d)
+                resPhoto.setAttribute('src', d["minimap"]);
+                mapX0 = d["x0"];
+                mapX1 = d["x1"];
+                mapY0 = d["y0"];
+                mapY1 = d["y1"];
+                predictPositions()
+            });
+        } else {
+            clearphoto();
+        }
+    }
+
     function predictPositions() {
         var context = canvas.getContext('2d');
         if (width && height) {
@@ -67,41 +97,11 @@ function startUngank() {
         }
     }
 
-    function findMiniMap() {
-        var context = canvas.getContext('2d');
-        if (width && height) {
-            canvas.width = width;
-            canvas.height = height;
-            context.drawImage(video, 0, 0, width, height);
-
-            var canvasData = canvas.toDataURL('image/png');
-
-            $.ajax({
-                type: "POST",
-                url: "https://ungank.com/findmap",
-                data: {
-                    userID: userID,
-                    imgBase64: canvasData
-                }
-            }).done(function(d) {
-                console.log(d)
-                resPhoto.setAttribute('src', d["minimap"]);
-                mapX0 = d["x0"];
-                mapX1 = d["x1"];
-                mapY0 = d["y0"];
-                mapY1 = d["y1"];
-            });
-        } else {
-            clearphoto();
-        }
-    }
-
     console.log("starting up")
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
     resPhoto = document.getElementById('response');
     startbutton = document.getElementById('startbutton');
-    findMapButton = document.getElementById('locatebutton');
 
     navigator.mediaDevices.getUserMedia(constraints)
         .then(function(stream) {
@@ -126,12 +126,7 @@ function startUngank() {
     }, false);
 
     startbutton.addEventListener('click', function(ev){
-        predictPositions();
-        ev.preventDefault();
-    }, false);
-
-    findMapButton.addEventListener('click', function(ev){
-        findMiniMap();
+        initialPredictPositions();
         ev.preventDefault();
     }, false);
 

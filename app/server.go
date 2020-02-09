@@ -12,18 +12,23 @@ func main() {
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/", serveHome)
+	http.HandleFunc("/", serveHero)
 	http.HandleFunc("/capture", serveCapture)
 	http.HandleFunc("/predict", servePredict)
 	http.HandleFunc("/findmap", serveFindMap)
+	http.HandleFunc("/blog", serveBlog)
 
 
 	log.Println("Listening...")
 	http.ListenAndServe(":8080", nil)
 }
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join("templates", "index.html"))
+func serveBlog(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("templates", "blog.html"))
+}
+
+func serveHero(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("templates", "hero.html"))
 }
 
 func serveCapture(w http.ResponseWriter, r *http.Request) {
