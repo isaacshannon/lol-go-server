@@ -3,13 +3,12 @@ function startUngank() {
     var height = 1;
 
     var streaming = false;
+    var predicting = false;
 
     var video = null;
     var canvas = null;
-    var photo = null;
     var resPhoto = null;
     var startbutton = null;
-    var findMapButton = null;
     var userID = Math.floor(Math.random() * 10000000);
 
     var mapX0 = 0;
@@ -17,7 +16,7 @@ function startUngank() {
     var mapY0 = 0;
     var mapY1 = 100;
 
-    constraints = {
+    const constraints = {
         video: {
             mediaSource: "screen", // whole screen sharing
             width: {max: '3840'},
@@ -26,18 +25,37 @@ function startUngank() {
         }
     };
 
-    function clearphoto() {
-        var context = canvas.getContext('2d');
-        context.fillStyle = "#AAA";
-        context.fillRect(0, 0, canvas.width, canvas.height);
+    function startPredictions(){
+        resPhoto.setAttribute('src', "../static/map-permission.png");
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+                setTimeout(function(){
+                    findMap();
+                }, 1000);
+            })
+            .catch(function(err) {
+                console.log("An error occurred: " + err);
+                resPhoto.setAttribute('src', "../static/map-error.png");
+            });
 
-        var data = canvas.toDataURL('image/png');
-        if (photo != null) {
-            photo.setAttribute('src', data);
-        }
+        video.addEventListener('canplay', function(){
+            if (!streaming) {
+                height = video.videoHeight;
+                width = video.videoWidth;
+
+                video.setAttribute('width', width);
+                video.setAttribute('height', height);
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+                streaming = true;
+            }
+        }, false);
     }
 
-    function initialPredictPositions(){
+    function findMap(){
+        resPhoto.setAttribute('src', "../static/map-locating.png");
         var context = canvas.getContext('2d');
         if (width && height) {
             canvas.width = width;
@@ -62,8 +80,6 @@ function startUngank() {
                 mapY1 = d["y1"];
                 predictPositions()
             });
-        } else {
-            clearphoto();
         }
     }
 
@@ -90,10 +106,10 @@ function startUngank() {
             }).done(function(d) {
                 console.log(d);
                 resPhoto.setAttribute('src', d["result"]);
-                predictPositions();
+                if (predicting) {
+                    predictPositions();
+                }
             });
-        } else {
-            clearphoto();
         }
     }
 
@@ -103,32 +119,14 @@ function startUngank() {
     resPhoto = document.getElementById('response');
     startbutton = document.getElementById('startbutton');
 
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(function(stream) {
-            video.srcObject = stream;
-            video.play();
-        })
-        .catch(function(err) {
-            console.log("An error occurred: " + err);
-        });
-
-    video.addEventListener('canplay', function(ev){
-        if (!streaming) {
-            height = video.videoHeight;
-            width = video.videoWidth;
-
-            video.setAttribute('width', width);
-            video.setAttribute('height', height);
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
-            streaming = true;
+    startbutton.addEventListener('click', function(ev){
+        if (predicting) {
+            location.reload();
+        } else {
+            predicting = true;
+            startbutton.innerHTML = 'stop';
+            startPredictions();
+            ev.preventDefault();
         }
     }, false);
-
-    startbutton.addEventListener('click', function(ev){
-        initialPredictPositions();
-        ev.preventDefault();
-    }, false);
-
-    clearphoto();
 }
