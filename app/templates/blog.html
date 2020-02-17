@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
-    <title>Ungank</title>
+    <title></title>
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
           crossorigin="anonymous">
 
@@ -14,6 +14,11 @@
     <!--[if gt IE 8]><!-->
     <link rel="stylesheet" href="../static/stylesheets/blog.css">
     <!--<![endif]-->
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="manifest" href="../static/site.webmanifest">
 </head>
 <body>
 
@@ -26,10 +31,7 @@
             <nav class="nav">
                 <ul class="nav-list">
                     <li class="nav-item">
-                        <a class="pure-button"
-                           onclick="window.open('https://ungank.com/capture', 'newwindow',
-                            'width=300,height=600');
-                            return false;">Start Now</a>
+                        <a class="pure-button" href="https://ungank.com/capture">Start Now</a>
                     </li>
                 </ul>
             </nav>
@@ -58,8 +60,8 @@
                         <p>
                             Ungank is a collection of deep learning networks that accurately predict the positions of
                             ALL players on a League of Legends map, including enemy players which would not normally be
-                            visible. These predictions are updated every second on a map displayed in a Firefox
-                            browser. The Ungank Chrome browser extension will be released soon.
+                            visible. These predictions are updated every second on a map displayed in a Firefox or Chrome
+                            browser.
                         </p>
                         <p>
                             Like any good copilot, Ungank is continuously learning from its experiences. The beta launch
@@ -68,9 +70,7 @@
                             veteran summoner looking for an edge, we hope to see you on the rift!
                         </p>
                         <p>
-                            <a onclick="window.open('https://ungank.com/capture', 'newwindow',
-                            'width=300,height=600');
-                            return false;">How to use Ungank</a>
+                            <a href="https://ungank.com/capture">How to use Ungank</a>
                         </p>
                     </div>
                 </section>

@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-    <title>Ungank</title>
+    <title></title>
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
           crossorigin="anonymous">
     <link rel="stylesheet" href="../static/stylesheets/hero.css">
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="manifest" href="../static/site.webmanifest">
 
 </head>
 <body>
@@ -32,10 +37,7 @@
     <nav class="nav">
         <ul class="nav-list center">
             <li class="nav-item">
-                <a class="pure-button"
-                   onclick="window.open('https://ungank.com/capture', 'newwindow',
-                'width=300,height=600');
-                return false;">Start Now</a>
+                <a class="pure-button" href="https://ungank.com/capture">Start Now</a>
             </li>
             <li class="nav-item">
                 <a class="pure-button"  href="https://ungank.com/blog">Learn More</a>
@@ -43,6 +45,28 @@
         </ul>
     </nav>
 </div>
+
+<script>
+
+    function logTabsForWindows(windowInfoArray) {
+        for (windowInfo of windowInfoArray) {
+            console.log(`Window: ${windowInfo.id}`);
+            console.log(windowInfo.tabs.map((tab) => {return tab.url}));
+        }
+    }
+
+    function onError(error) {
+        console.log(`Error: ${error}`);
+    }
+
+    browser.browserAction.onClicked.addListener((tab) => {
+        var getting = browser.windows.getAll({
+            populate: true,
+            windowTypes: ["normal"]
+        });
+        getting.then(logTabsForWindows, onError);
+    });
+</script>
 
 
 

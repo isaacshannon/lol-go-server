@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
-    <title>Ungank</title>
+    <title></title>
     <script src="../static/scripts/capture.js" type="text/javascript"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
@@ -13,8 +13,12 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
 
-    <link rel="stylesheet" href="../static/stylesheets/blog.css">
     <link rel="stylesheet" href="../static/stylesheets/capture.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="manifest" href="../static/site.webmanifest">
 
 </head>
 <body>
@@ -22,14 +26,16 @@
 <div id="layout" class="pure-g">
     <div class="sidebar pure-u-1 pure-u-md-1-4">
         <div class="header">
-            <img id="response" src='../static/gankai.png' alt="The prediction response.">
+            <img id="response" src='../static/gankai.png' alt="The prediction response." hidden>
+            <video id="video" playsinline controls>Video stream not available.</video>
             <nav class="nav">
                 <ul class="nav-list">
                     <li class="nav-item">
-                        <button id="startbutton" class="pure-button">Start Predictions</button>
+                        <button id="startbutton" class="pure-button">Locate Map</button>
                     </li>
                 </ul>
             </nav>
+            <p id="error"></p>
         </div>
     </div>
 
@@ -44,39 +50,21 @@
 
                     <div class="post-description">
                         <p>
-                            1. Ungank requires the latest Firefox browser. Use the following link to install Firefox
-                            and reopen this page. <a class="pure-button" href="https://www.mozilla.org">https://www.mozilla.org</a>
+                            1. Ungank uses your mobile device's camera. On Apple devices only the Safari web browser
+                            supports this functionality. On Android devices we recommend the Chrome web browser.
                         </p>
                         <p>
-                            2. Start a League of Legends game, wait until the map is visible before starting
-                            predictions.
-                        </p>
-                        <p>
-                            3. Click on the start prediction button to the left of these instructions and allow Ungank
-                            to see the League of Legends screen. Please wait 10-20 seconds before the first predictions
-                            appears.
-                        </p>
-                        <img src='../static/permissions.png' alt="Permission dialog">
-                    </div>
+                            2. Press the LOCATE MAP button, the browser will request permission to use your device camera.
 
-                    <h2 class="post-title">Troubleshooting</h2>
-                    <div class="post-description">
-                        <p>
-                            1. Verify that you are using a recent Firefox web browser version. The Ungank Chrome extension
-                            will be released soon. There is no planned support for Edge or Safari browsers.
                         </p>
+                        <img src='../static/locate-map.png' alt="LOCATE MAP">
                         <p>
-                            2. Ungank requires javascript to capture screenshots of the map. If javascript is disabled on
-                            your browser Ungank will not work.
+                            3. Place the phone in front of your monitor, with the League of Legends map occupying most
+                            of the video display. We recommend using an adjustable phone stand.
                         </p>
+                        <img src='../static/place-device.png' alt="START PREDICTIONS">
                         <p>
-                            3. Click on the following link to verify that this page is loaded using a secure connection.
-                            <a class="pure-button" href="https://ungank.com/capture">https://ungank.com/capture</a>
-                        </p>
-                        <p>
-                            4. If the previous troubleshooting steps fail, the deep learning network may be undergoing
-                            maintenance or a technical issue may be causing an outage. Please retry again later, we
-                            apologize in advance for any inconvenience.
+                            4. Press the START PREDICTIONS button to begin predictions.
                         </p>
                     </div>
                 </section>
@@ -84,7 +72,6 @@
         </div>
     </div>
     <canvas id="canvas" hidden></canvas>
-    <video id="video" hidden>Video stream not available.</video>
     <script>startUngank()</script>
 </div>
 
