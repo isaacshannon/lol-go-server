@@ -12,11 +12,6 @@ function startUngank() {
     var startbutton = null;
     var userID = Math.floor(Math.random() * 10000000);
 
-    var mapX0 = 0;
-    var mapX1 = 100;
-    var mapY0 = 0;
-    var mapY1 = 100;
-
     const constraints = {
         audio: false,
         video: {
@@ -52,7 +47,7 @@ function startUngank() {
             resPhoto.removeAttribute("hidden");
             predicting = true;
             startbutton.innerHTML = 'reset';
-            findMap();
+            predictPositions();
             ev.preventDefault();
             return;
         }
@@ -67,60 +62,15 @@ function startUngank() {
         logToServer({"name": "stream started"})
     }
 
-    function findMap() {
+    function predictPositions() {
         height = video.videoHeight;
         width = video.videoWidth;
-        logToServer({
-                "name":"finding map",
-                "width": width,
-                "height": height,
-        });
 
         video.setAttribute('width', width);
         video.setAttribute('height', height);
         canvas.setAttribute('width', width);
         canvas.setAttribute('height', height);
 
-        resPhoto.setAttribute('src', "../static/map-locating.png");
-        var context = canvas.getContext('2d');
-        if (width && height) {
-            canvas.width = width;
-            canvas.height = height;
-            context.drawImage(video, 0, 0, width, height);
-
-            var canvasData = canvas.toDataURL('image/png');
-
-            $.ajax({
-                type: "POST",
-                url: "https://ungank.com/findmap",
-                data: {
-                    userID: userID,
-                    imgBase64: canvasData
-                },
-                async: true,
-                headers: {
-                    "cache-control": "no-cache"
-                }
-            }).done(function (d) {
-                resPhoto.setAttribute('src', d["minimap"]);
-                mapX0 = d["x0"];
-                mapX1 = d["x1"];
-                mapY0 = d["y0"];
-                mapY1 = d["y1"];
-                logToServer({
-                    "name":"map location received",
-                    "x0": d["x0"],
-                    "x1": d["x1"],
-                    "y0": d["y0"],
-                    "y1": d["y1"],
-                });
-
-                predictPositions()
-            });
-        }
-    }
-
-    function predictPositions() {
         logToServer({
             "name":"started prediction",
             "width": width,
@@ -139,10 +89,10 @@ function startUngank() {
                 data: {
                     userID: userID,
                     imgBase64: canvasData,
-                    x0: mapX0,
-                    x1: mapX1,
-                    y0: mapY0,
-                    y1: mapY1,
+                    x0: 1,
+                    x1: 1,
+                    y0: 1,
+                    y1: 1,
                 }
             }).done(function (d) {
                 logToServer("prediction received");
@@ -171,3 +121,5 @@ function startUngank() {
 
     startbutton.addEventListener('click', handleButtonClick, false);
 }
+
+var processor;

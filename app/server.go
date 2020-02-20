@@ -15,7 +15,6 @@ func main() {
 	http.HandleFunc("/", serveHero)
 	http.HandleFunc("/capture", serveCapture)
 	http.HandleFunc("/predict", servePredict)
-	http.HandleFunc("/findmap", serveFindMap)
 	http.HandleFunc("/blog", serveBlog)
 	http.HandleFunc("/log", serveLog)
 
@@ -42,19 +41,6 @@ func serveCapture(w http.ResponseWriter, r *http.Request) {
 func servePredict(w http.ResponseWriter, r *http.Request) {
 	log.Println("serving predict")
 	pred, err := retrievePrediction(r)
-	if err != nil {
-		log.Println(err)
-		errorResponse(w, err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(pred)
-}
-
-func serveFindMap(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving find map")
-	pred, err := retrieveMap(r)
 	if err != nil {
 		log.Println(err)
 		errorResponse(w, err)
