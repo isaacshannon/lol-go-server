@@ -8,9 +8,11 @@ function startUngank() {
 
     var video = null;
     var canvas = null;
-    var resPhoto = null;
     var startbutton = null;
+    var overlay = null;
     var userID = Math.floor(Math.random() * 10000000);
+    var predictions = [[5,5]];
+    var sctx = null;
 
     const constraints = {
         audio: false,
@@ -43,8 +45,7 @@ function startUngank() {
 
         if (streaming && !predicting) {
             logToServer({"name":"capture button starting predictions"});
-            video.setAttribute('hidden', true);
-            resPhoto.removeAttribute("hidden");
+            // video.setAttribute('hidden', true);
             predicting = true;
             startbutton.innerHTML = 'reset';
             predictPositions();
@@ -82,7 +83,7 @@ function startUngank() {
             canvas.height = height;
             context.drawImage(video, 0, 0, width, height);
 
-            var canvasData = canvas.toDataURL('image/png');
+            var canvasData = overlay.toDataURL('image/png');
             $.ajax({
                 type: "POST",
                 url: "https://ungank.com/predict",
@@ -95,11 +96,10 @@ function startUngank() {
                     y1: 1,
                 }
             }).done(function (d) {
-                logToServer("prediction received");
-                resPhoto.setAttribute('src', d["result"]);
-                if (predicting) {
-                    predictPositions();
-                }
+                logToServer({"prediction received": d["predictions"][0][0]});
+                predictions = d["predictions"];
+                predictPositions();
+
             });
         }
     }
@@ -113,13 +113,43 @@ function startUngank() {
         })
     }
 
+
+
     console.log("starting up");
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
-    resPhoto = document.getElementById('response');
     startbutton = document.getElementById('startbutton');
 
     startbutton.addEventListener('click', handleButtonClick, false);
-}
 
-var processor;
+
+    function drawSquare(value, index, array) {
+        sctx.beginPath();
+        sctx.lineWidth = "1";
+        sctx.strokeStyle = '#FFFFFF77';
+        sctx.rect(Number(value[0])*10, Number(value[1])*10, 10, 10);
+        sctx.stroke();
+    }
+
+    overlay = document.getElementById('overlay');
+    sctx = overlay.getContext('2d');
+    var i;
+    video.addEventListener('play',
+        function() {
+        i=window.setInterval(
+            function() {
+
+                var vWidth = video.width;
+                var vHeight = video.height;
+                if (vHeight > vWidth) {
+                    var dy = (vHeight - vWidth) / 2;
+                    sctx.drawImage(video, 0, dy, vWidth, vWidth, 0, 0, 300, 300)
+                } else {
+                    var dx = (vWidth - vHeight) / 2;
+                    sctx.drawImage(video, dx, 0, vHeight, vHeight, 0, 0, 300, 300)
+                }
+
+                predictions.forEach(drawSquare);
+            },20);
+        },false);
+}

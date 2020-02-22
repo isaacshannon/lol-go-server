@@ -17,6 +17,7 @@ func main() {
 	http.HandleFunc("/predict", servePredict)
 	http.HandleFunc("/blog", serveBlog)
 	http.HandleFunc("/log", serveLog)
+	http.HandleFunc("/test", serveTest)
 
 
 	log.Println("Listening...")
@@ -31,6 +32,11 @@ func serveBlog(w http.ResponseWriter, r *http.Request) {
 func serveHero(w http.ResponseWriter, r *http.Request) {
 	log.Println("serving landing")
 	http.ServeFile(w, r, filepath.Join("templates", "hero.html"))
+}
+
+func serveTest(w http.ResponseWriter, r *http.Request) {
+	log.Println("serving test")
+	http.ServeFile(w, r, filepath.Join("templates", "test.html"))
 }
 
 func serveCapture(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +58,10 @@ func servePredict(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveLog(w http.ResponseWriter, r *http.Request) {
+	log.Println("serving log")
 	err := r.ParseForm()
 	if err != nil {
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

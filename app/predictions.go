@@ -10,6 +10,7 @@ import (
 
 type predictResponse struct {
 	Result string `json:"result"`
+	Predictions [][]int32 `json:"predictions"`
 }
 func retrievePrediction(r *http.Request) (predictResponse, error) {
 	img := r.FormValue("imgBase64")
