@@ -7,7 +7,6 @@ function startUngank() {
     var reloading = false;
 
     var video = null;
-    var canvas = null;
     var startbutton = null;
     var overlay = null;
     var userID = Math.floor(Math.random() * 10000000);
@@ -20,7 +19,6 @@ function startUngank() {
             facingMode: "environment"
         },
         width: 600,
-        height: 600,
     };
 
     function handleButtonClick(ev) {
@@ -45,7 +43,8 @@ function startUngank() {
 
         if (streaming && !predicting) {
             logToServer({"name":"capture button starting predictions"});
-            // video.setAttribute('hidden', true);
+            video.setAttribute('hidden', true);
+            overlay.removeAttribute('hidden');
             predicting = true;
             startbutton.innerHTML = 'reset';
             predictPositions();
@@ -69,20 +68,13 @@ function startUngank() {
 
         video.setAttribute('width', width);
         video.setAttribute('height', height);
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
 
         logToServer({
             "name":"started prediction",
             "width": width,
             "height": height,
         });
-        var context = canvas.getContext('2d');
         if (width && height) {
-            canvas.width = width;
-            canvas.height = height;
-            context.drawImage(video, 0, 0, width, height);
-
             var canvasData = overlay.toDataURL('image/png');
             $.ajax({
                 type: "POST",
@@ -117,17 +109,14 @@ function startUngank() {
 
     console.log("starting up");
     video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
     startbutton = document.getElementById('startbutton');
-
     startbutton.addEventListener('click', handleButtonClick, false);
-
 
     function drawSquare(value, index, array) {
         sctx.beginPath();
         sctx.lineWidth = "1";
-        sctx.strokeStyle = '#FFFFFF77';
-        sctx.rect(Number(value[0])*10, Number(value[1])*10, 10, 10);
+        sctx.fillStyle = '#FFFFFF55';
+        sctx.fillRect(Number(value[0])*10, Number(value[1])*10, 10, 10);
         sctx.stroke();
     }
 
