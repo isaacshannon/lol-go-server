@@ -9,9 +9,13 @@ function startUngank() {
     var video = null;
     var startbutton = null;
     var overlay = null;
+    var noOverlay = null;
+
     var userID = Math.floor(Math.random() * 10000000);
-    var predictions = [[5,5]];
+    var predictions = [[5, 5]];
+    var heatmap = {};
     var sctx = null;
+    var nsctx = null;
 
     const constraints = {
         audio: false,
@@ -21,15 +25,17 @@ function startUngank() {
         width: 600,
     };
 
+    const pause = time => new Promise(resolve => setTimeout(resolve, time))
+
     function handleButtonClick(ev) {
-        logToServer({"name":"capture button clicked"});
+        logToServer({"name": "capture button clicked"});
         if (reloading) {
-            logToServer({"name":"capture button error reload"});
+            logToServer({"name": "capture button error reload"});
             location.reload();
         }
 
         if (!streaming && !reloading) {
-            logToServer({"name":"capture button starting stream"});
+            logToServer({"name": "capture button starting stream"});
             if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia(constraints).then(handleStream).catch(function (err) {
                     logToServer(err);
@@ -42,17 +48,18 @@ function startUngank() {
         }
 
         if (streaming && !predicting) {
-            logToServer({"name":"capture button starting predictions"});
+            logToServer({"name": "capture button starting predictions"});
             video.setAttribute('hidden', true);
             overlay.removeAttribute('hidden');
             predicting = true;
             startbutton.innerHTML = 'reset';
             predictPositions();
             ev.preventDefault();
+            video.play();
             return;
         }
 
-        logToServer({"name":"capture button reload"});
+        logToServer({"name": "capture button reload"});
         location.reload();
     }
 
@@ -70,12 +77,12 @@ function startUngank() {
         video.setAttribute('height', height);
 
         logToServer({
-            "name":"started prediction",
+            "name": "started prediction",
             "width": width,
             "height": height,
         });
         if (width && height) {
-            var canvasData = overlay.toDataURL('image/png');
+            var canvasData = noOverlay.toDataURL('image/png');
             $.ajax({
                 type: "POST",
                 url: "https://ungank.com/predict",
@@ -88,10 +95,30 @@ function startUngank() {
                     y1: 1,
                 }
             }).done(function (d) {
-                logToServer({"prediction received": d["predictions"][0][0]});
+                logToServer({"prediction received":d["predictions"]});
                 predictions = d["predictions"];
-                predictPositions();
-
+                logToServer({"heatmap":heatmap});
+                var key;
+                for (key in heatmap) {
+                    if (heatmap.hasOwnProperty(key) && heatmap[key] >= 1) {
+                        heatmap[key] -= 1;
+                    }
+                }
+                for (let i = 0; i < predictions.length; i++) {
+                    let p = predictions[i];
+                    if (p[2] === "b"){
+                        continue;
+                    }
+                    key = 100 * p[0] + p[1];
+                    if (p[3] > 0.2) {
+                        heatmap[key] = 5;
+                    } else if (p[3] > 0.1 && heatmap[key] < 3) {
+                        heatmap[key] = 3;
+                    } else if (p[3] > 0.05 && heatmap[key] < 2) {
+                        heatmap[key] = 2;
+                    }
+                }
+                pause(300).then(predictPositions);
             });
         }
     }
@@ -106,39 +133,51 @@ function startUngank() {
     }
 
 
-
     console.log("starting up");
     video = document.getElementById('video');
     startbutton = document.getElementById('startbutton');
     startbutton.addEventListener('click', handleButtonClick, false);
 
-    function drawSquare(value, index, array) {
+    var fills = ['#00000000', '#FF000022', '#FF000033', '#FF000044', '#FF000055', '#FF000077'];
+
+    function drawSquares() {
         sctx.beginPath();
         sctx.lineWidth = "1";
-        sctx.fillStyle = '#FFFFFF55';
-        sctx.fillRect(Number(value[0])*10, Number(value[1])*10, 10, 10);
-        sctx.stroke();
+        var key;
+        for (key in heatmap) {
+            if (heatmap.hasOwnProperty(key)) {
+                let x = key / 100;
+                let y = key % 100;
+                sctx.fillStyle = fills[heatmap[key]];
+                sctx.fillRect(x * 30 - 15, y * 30 - 15, 30, 30);
+            }
+        }
     }
 
     overlay = document.getElementById('overlay');
+    noOverlay = document.getElementById('noOverlay');
     sctx = overlay.getContext('2d');
+    nsctx = noOverlay.getContext('2d');
     var i;
     video.addEventListener('play',
-        function() {
-        i=window.setInterval(
-            function() {
+        function () {
+            i = window.setInterval(
+                function () {
 
-                var vWidth = video.width;
-                var vHeight = video.height;
-                if (vHeight > vWidth) {
-                    var dy = (vHeight - vWidth) / 2;
-                    sctx.drawImage(video, 0, dy, vWidth, vWidth, 0, 0, 300, 300)
-                } else {
-                    var dx = (vWidth - vHeight) / 2;
-                    sctx.drawImage(video, dx, 0, vHeight, vHeight, 0, 0, 300, 300)
-                }
+                    var vWidth = video.width;
+                    var vHeight = video.height;
+                    if (vHeight > vWidth) {
+                        var dy = (vHeight - vWidth) / 2;
+                        sctx.drawImage(video, 0, dy, vWidth, vWidth, 0, 0, 300, 300);
+                        nsctx.drawImage(video, 0, dy, vWidth, vWidth, 0, 0, 300, 300);
+                    } else {
+                        var dx = (vWidth - vHeight) / 2;
+                        sctx.drawImage(video, dx, 0, vHeight, vHeight, 0, 0, 300, 300);
+                        nsctx.drawImage(video, dx, 0, vHeight, vHeight, 0, 0, 300, 300);
+                    }
 
-                predictions.forEach(drawSquare);
-            },20);
-        },false);
+                    drawSquares()
+
+                }, 20);
+        }, false);
 }

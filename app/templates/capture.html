@@ -20,13 +20,18 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
     <link rel="manifest" href="../static/site.webmanifest">
 
+    <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js" integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous">
+    </script>
+
 </head>
 <body>
+<script>Sentry.init({ dsn: 'https://544b4da6c23f44ebaa42c10207d293e2@sentry.io/5179570' });</script>
 
 <div id="layout" class="pure-g">
     <div class="sidebar pure-u-1 pure-u-md-1-4">
         <div class="header">
             <canvas id="overlay" height="300px" width="300px" hidden></canvas>
+            <canvas id="noOverlay" height="300px" width="300px" hidden></canvas>
             <video id="video" playsinline controls>Video stream not available.</video>
             <nav class="nav">
                 <ul class="nav-list">

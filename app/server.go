@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 )
 
 func main() {
 	SetupUsers()
+	loadGCP()
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -20,48 +21,50 @@ func main() {
 	http.HandleFunc("/test", serveTest)
 
 
-	log.Println("Listening...")
+	lg(map[string]string{"msg":"Listening..."})
 	http.ListenAndServe(":8080", nil)
 }
 
 func serveBlog(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving blog")
+	lg(map[string]string{"msg":"serving blog"})
 	http.ServeFile(w, r, filepath.Join("templates", "blog.html"))
 }
 
 func serveHero(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving landing")
+	lg(map[string]string{"msg":"serving landing"})
 	http.ServeFile(w, r, filepath.Join("templates", "hero.html"))
 }
 
 func serveTest(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving test")
+	lg(map[string]string{"msg":"serving test"})
 	http.ServeFile(w, r, filepath.Join("templates", "test.html"))
 }
 
 func serveCapture(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving capture")
+	lg(map[string]string{"msg":"serving capture"})
 	http.ServeFile(w, r, filepath.Join("templates", "capture.html"))
 }
 
 func servePredict(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving predict")
+	start := time.Now()
+	lg(map[string]string{"msg":"serving predict"})
 	pred, err := retrievePrediction(r)
 	if err != nil {
-		log.Println(err)
+		lgError(err)
 		errorResponse(w, err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	lg(map[string]string{"prediction time": time.Since(start).String()})
 	json.NewEncoder(w).Encode(pred)
 }
 
 func serveLog(w http.ResponseWriter, r *http.Request) {
-	log.Println("serving log")
+	lg(map[string]string{"msg":"serving log"})
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		lgError(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -71,13 +74,8 @@ func serveLog(w http.ResponseWriter, r *http.Request) {
 	for key, val := range r.PostForm {
 		values[key] = val[0]
 	}
+	values["msg"] = "client log"
 
-	marshalled, err := json.Marshal(values)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	log.Println(string(marshalled))
+	lg(values)
 	w.WriteHeader(http.StatusOK)
 }
