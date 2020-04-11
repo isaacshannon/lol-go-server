@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/getsentry/sentry-go"
 	"strings"
 	"time"
 )
@@ -16,7 +17,7 @@ func loadGCP() {
 	ctx := context.Background()
 	storageClient, err = storage.NewClient(ctx)
 	if err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 		return
 	}
 }
@@ -28,18 +29,18 @@ func saveImage(img string, id string) {
 	}
 	bkt, err := getBucket()
 	if err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 		return
 	}
 
-	obj := bkt.Object(fmt.Sprintf("%s-%d", id, time.Now().Unix()))
+	obj := bkt.Object(fmt.Sprintf("%s-%d.png", id, time.Now().Unix()))
 	w := obj.NewWriter(ctx)
 	if _, err := fmt.Fprintf(w, img); err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 	}
 
 	if err := w.Close(); err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 	}
 }
 
@@ -60,7 +61,7 @@ func getBucket() (*storage.BucketHandle, error){
 	if err == storage.ErrBucketNotExist {
 		err := bkt.Create(ctx, "leagueai", nil)
 		if err != nil {
-			lgError(err)
+			sentry.CaptureException(err)
 		}
 		return bkt, err
 	}

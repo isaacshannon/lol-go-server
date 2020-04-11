@@ -12,7 +12,7 @@ function startUngank() {
     var noOverlay = null;
 
     var userID = Math.floor(Math.random() * 10000000);
-    var predictions = [[5, 5]];
+    var predictions = [[5, 5, "b"]];
     var heatmap = {};
     var sctx = null;
     var nsctx = null;
@@ -53,9 +53,11 @@ function startUngank() {
             overlay.removeAttribute('hidden');
             predicting = true;
             startbutton.innerHTML = 'reset';
-            predictPositions();
-            ev.preventDefault();
             video.play();
+            video.setAttribute('width', width);
+            video.setAttribute('height', height);
+            pause(500).then(predictPositions);
+            ev.preventDefault();
             return;
         }
 
@@ -70,57 +72,55 @@ function startUngank() {
     }
 
     function predictPositions() {
-        height = video.videoHeight;
-        width = video.videoWidth;
-
-        video.setAttribute('width', width);
-        video.setAttribute('height', height);
-
         logToServer({
-            "name": "started prediction",
-            "width": width,
-            "height": height,
+            "name": "started prediction"
         });
-        if (width && height) {
-            var canvasData = noOverlay.toDataURL('image/png');
-            $.ajax({
-                type: "POST",
-                url: "https://ungank.com/predict",
-                data: {
-                    userID: userID,
-                    imgBase64: canvasData,
-                    x0: 1,
-                    x1: 1,
-                    y0: 1,
-                    y1: 1,
-                }
-            }).done(function (d) {
-                logToServer({"prediction received":d["predictions"]});
-                predictions = d["predictions"];
-                logToServer({"heatmap":heatmap});
-                var key;
-                for (key in heatmap) {
-                    if (heatmap.hasOwnProperty(key) && heatmap[key] >= 1) {
-                        heatmap[key] -= 1;
-                    }
-                }
-                for (let i = 0; i < predictions.length; i++) {
-                    let p = predictions[i];
-                    if (p[2] === "b"){
-                        continue;
-                    }
-                    key = 100 * p[0] + p[1];
-                    if (p[3] > 0.2) {
-                        heatmap[key] = 5;
-                    } else if (p[3] > 0.1 && heatmap[key] < 3) {
-                        heatmap[key] = 3;
-                    } else if (p[3] > 0.05 && heatmap[key] < 2) {
-                        heatmap[key] = 2;
-                    }
-                }
-                pause(300).then(predictPositions);
-            });
+
+        var canvasData = noOverlay.toDataURL('image/png');
+        if (canvasData.length < 10000){
+            // Canvas not initialized yet.
+            pause(300).then(predictPositions);
+            return;
         }
+        $.ajax({
+            type: "POST",
+            url: "https://ungank.com/predict",
+            data: {
+                userID: userID,
+                imgBase64: canvasData,
+                x0: 1,
+                x1: 1,
+                y0: 1,
+                y1: 1,
+            }
+        }).done(function (d) {
+            if (!("predictions" in d) || d["predictions"].length === 0){
+                return;
+            }
+            predictions = d["predictions"];
+            var key;
+            for (key in heatmap) {
+                if (heatmap.hasOwnProperty(key) && heatmap[key] >= 1) {
+                    heatmap[key] -= 1;
+                }
+            }
+            for (let i = 0; i < predictions.length; i++) {
+                let p = predictions[i];
+                if (p[2] === "b"){
+                    continue;
+                }
+                key = 100 * p[0] + p[1];
+                if (p[3] > 0.2) {
+                    heatmap[key] = 5;
+                } else if (p[3] > 0.15 && heatmap[key] < 3) {
+                    heatmap[key] = 3;
+                } else if (p[3] > 0.12 && heatmap[key] < 2) {
+                    heatmap[key] = 2;
+                }
+            }
+            pause(300).then(predictPositions);
+        });
+
     }
 
     function logToServer(event) {
@@ -138,7 +138,14 @@ function startUngank() {
     startbutton = document.getElementById('startbutton');
     startbutton.addEventListener('click', handleButtonClick, false);
 
-    var fills = ['#00000000', '#FF000022', '#FF000033', '#FF000044', '#FF000055', '#FF000077'];
+    var fills = [
+        '#00000000',
+        '#99FF0011',
+        '#FFFF0022',
+        '#FF880033',
+        '#FF330044',
+        '#FF000077'
+    ];
 
     function drawSquares() {
         sctx.beginPath();
@@ -164,8 +171,8 @@ function startUngank() {
             i = window.setInterval(
                 function () {
 
-                    var vWidth = video.width;
-                    var vHeight = video.height;
+                    var vWidth = video.videoWidth;
+                    var vHeight = video.videoHeight;
                     if (vHeight > vWidth) {
                         var dy = (vHeight - vWidth) / 2;
                         sctx.drawImage(video, 0, dy, vWidth, vWidth, 0, 0, 300, 300);

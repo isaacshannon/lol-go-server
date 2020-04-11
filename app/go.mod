@@ -5,6 +5,7 @@ go 1.13
 require (
 	cloud.google.com/go/storage v1.5.0
 	github.com/DataDog/zstd v1.4.4 // indirect
+	github.com/getsentry/sentry-go v0.5.1
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

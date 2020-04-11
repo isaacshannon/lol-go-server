@@ -2,9 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/getsentry/sentry-go"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type predictResponse struct {
@@ -18,6 +23,11 @@ func retrievePrediction(r *http.Request) (predictResponse, error) {
 	y0 := r.FormValue("y0")
 	y1 := r.FormValue("y1")
 
+	err := validateImage(img)
+	if err != nil {
+		return predictResponse{}, err
+	}
+
 	resp, err := http.PostForm(
 		"http://league-nodeport-service/predict",
 		url.Values{
@@ -28,27 +38,43 @@ func retrievePrediction(r *http.Request) (predictResponse, error) {
 			"y1": {y1},
 		})
 	if err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 		return predictResponse{}, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		lgError(err)
+		sentry.CaptureException(err)
 		return predictResponse{}, err
 	}
 
 	pred := predictResponse{}
 	err = json.Unmarshal(body, &pred)
 	if err != nil {
-		lgError(err)
+		sentry.CaptureMessage(string(body))
+		sentry.CaptureException(err)
 		return predictResponse{}, err
 	}
 
 	if userID != "" {
-		lg(map[string]string{"msg":"saving image"})
+		log.Println("saving image")
 		go saveImage(img, userID)
 	}
 
 	return pred, nil
+}
+
+func validateImage(imgURL string) error {
+	if !strings.Contains(imgURL, "data:image/png;base64") {
+		log.Println("invalid img format")
+		return errors.New("invalid img format")
+	}
+
+	l := len(imgURL)
+	if l > 350000 || l < 200000 {
+		log.Println(fmt.Sprintf("invalid img size: %d", l))
+		return errors.New("invalid img size")
+	}
+
+	return nil
 }

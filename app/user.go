@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
+	"errors"
+	"github.com/getsentry/sentry-go"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"os"
 )
 
@@ -26,33 +27,24 @@ func SetupUsers(){
 
 	mongoURI, ok := os.LookupEnv("DB_URI")
 	if !ok {
-		fmt.Println("error: unable to find MONGO_PW in the environment")
+		sentry.CaptureException(errors.New("unable to find MONGO_PW in the environment"))
 		os.Exit(1)
 	}
-	// Set client options
+
 	clientOptions := options.Client().ApplyURI(mongoURI)
-	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		fmt.Println(err)
+		sentry.CaptureException(err)
 		os.Exit(1)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		fmt.Println(err)
+		sentry.CaptureException(err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	log.Println("Connected to MongoDB!")
 
 	users = client.Database("league").Collection("users")
-}
-
-func loginUser(email string, password string) (User, error) {
-	filter := bson.D{}
-	var result User
-	err := users.FindOne(context.TODO(), filter).Decode(&result)
-
-	return result, err
 }

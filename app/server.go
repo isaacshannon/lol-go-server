@@ -2,6 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/getsentry/sentry-go"
+	"log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -10,6 +13,12 @@ import (
 func main() {
 	SetupUsers()
 	loadGCP()
+	//show lines on logs
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	//Init Sentry
+	err := sentry.Init(sentry.ClientOptions{Dsn: "https://9ff1155e0ae94b668ea3a713d438bae6@o370311.ingest.sentry.io/5196659"})
+	if err != nil {log.Fatalf("sentry.Init: %s", err)}
+	defer sentry.Flush(2 * time.Second)
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -20,52 +29,57 @@ func main() {
 	http.HandleFunc("/log", serveLog)
 	http.HandleFunc("/test", serveTest)
 
-
-	lg(map[string]string{"msg":"Listening..."})
-	http.ListenAndServe(":8080", nil)
+	log.Println("Listening...")
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		sentry.CaptureException(err)
+	}
 }
 
 func serveBlog(w http.ResponseWriter, r *http.Request) {
-	lg(map[string]string{"msg":"serving blog"})
+	log.Println("serving blog")
 	http.ServeFile(w, r, filepath.Join("templates", "blog.html"))
 }
 
 func serveHero(w http.ResponseWriter, r *http.Request) {
-	lg(map[string]string{"msg":"serving landing"})
+	log.Println("serving landing")
 	http.ServeFile(w, r, filepath.Join("templates", "hero.html"))
 }
 
 func serveTest(w http.ResponseWriter, r *http.Request) {
-	lg(map[string]string{"msg":"serving test"})
+	log.Println("serving test")
 	http.ServeFile(w, r, filepath.Join("templates", "test.html"))
 }
 
 func serveCapture(w http.ResponseWriter, r *http.Request) {
-	lg(map[string]string{"msg":"serving capture"})
+	log.Println("serving capture")
 	http.ServeFile(w, r, filepath.Join("templates", "capture.html"))
 }
 
 func servePredict(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	lg(map[string]string{"msg":"serving predict"})
+	log.Println("serving predict")
 	pred, err := retrievePrediction(r)
 	if err != nil {
-		lgError(err)
 		errorResponse(w, err)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	lg(map[string]string{"prediction time": time.Since(start).String()})
-	json.NewEncoder(w).Encode(pred)
+	log.Println(fmt.Sprintf("prediction time: %s", time.Since(start).String()))
+	err = json.NewEncoder(w).Encode(pred)
+	if err != nil {
+		sentry.CaptureException(err)
+	}
 }
 
 func serveLog(w http.ResponseWriter, r *http.Request) {
-	lg(map[string]string{"msg":"serving log"})
+	log.Println("serving log")
 	err := r.ParseForm()
 	if err != nil {
-		lgError(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sentry.CaptureException(err)
+		errorResponse(w, err)
 		return
 	}
 
@@ -76,6 +90,6 @@ func serveLog(w http.ResponseWriter, r *http.Request) {
 	}
 	values["msg"] = "client log"
 
-	lg(values)
+	log.Println(values)
 	w.WriteHeader(http.StatusOK)
 }
