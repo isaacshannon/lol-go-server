@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/getsentry/sentry-go"
+	"log"
 	"strings"
 	"time"
 )
@@ -61,7 +62,8 @@ func getBucket() (*storage.BucketHandle, error){
 	if err == storage.ErrBucketNotExist {
 		err := bkt.Create(ctx, "leagueai", nil)
 		if err != nil {
-			sentry.CaptureException(err)
+			// When multiple pods attempt to create the same bucket there's an error
+			log.Println(err)
 		}
 		return bkt, err
 	}

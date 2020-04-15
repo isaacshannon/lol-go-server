@@ -17,26 +17,25 @@ type predictResponse struct {
 }
 func retrievePrediction(r *http.Request) (predictResponse, error) {
 	userID := r.FormValue("userID")
+	ip := r.Header.Get("X-FORWARDED-FOR")
 	img := r.FormValue("imgBase64")
-	x0 := r.FormValue("x0")
-	x1 := r.FormValue("x1")
-	y0 := r.FormValue("y0")
-	y1 := r.FormValue("y1")
 
-	err := validateImage(img)
+	err := validateUser(userID)
+	if err != nil {
+		return predictResponse{}, err
+	}
+	err = validateUserIP(userID, ip)
+	if err != nil {
+		return predictResponse{}, err
+	}
+	err = validateImage(img)
 	if err != nil {
 		return predictResponse{}, err
 	}
 
 	resp, err := http.PostForm(
 		"http://league-nodeport-service/predict",
-		url.Values{
-			"imgBase64": {img},
-			"x0": {x0},
-			"x1": {x1},
-			"y0": {y0},
-			"y1": {y1},
-		})
+		url.Values{"imgBase64": {img}})
 	if err != nil {
 		sentry.CaptureException(err)
 		return predictResponse{}, err
@@ -56,6 +55,7 @@ func retrievePrediction(r *http.Request) (predictResponse, error) {
 		return predictResponse{}, err
 	}
 
+	// Post prediction tasks
 	if userID != "" {
 		log.Println("saving image")
 		go saveImage(img, userID)
@@ -71,7 +71,7 @@ func validateImage(imgURL string) error {
 	}
 
 	l := len(imgURL)
-	if l > 350000 || l < 200000 {
+	if l > 500000 || l < 100000 {
 		log.Println(fmt.Sprintf("invalid img size: %d", l))
 		return errors.New("invalid img size")
 	}

@@ -1,13 +1,10 @@
 function startUngank() {
-    var width = 1;
-    var height = 1;
-
     var streaming = false;
     var predicting = false;
     var reloading = false;
 
-    var video = null;
     var startbutton = null;
+    var video = null;
     var overlay = null;
     var noOverlay = null;
 
@@ -17,25 +14,22 @@ function startUngank() {
     var sctx = null;
     var nsctx = null;
 
-    const constraints = {
-        audio: false,
-        video: {
-            facingMode: "environment"
-        },
-        width: 600,
-    };
-
     const pause = time => new Promise(resolve => setTimeout(resolve, time))
 
     function handleButtonClick(ev) {
-        logToServer({"name": "capture button clicked"});
+        const constraints = {
+            audio: false,
+            video: {
+                facingMode: "environment"
+            },
+            width: 600,
+        };
+
         if (reloading) {
-            logToServer({"name": "capture button error reload"});
             location.reload();
         }
 
         if (!streaming && !reloading) {
-            logToServer({"name": "capture button starting stream"});
             if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia(constraints).then(handleStream).catch(function (err) {
                     logToServer(err);
@@ -43,38 +37,24 @@ function startUngank() {
                     reloading = true;
                 });
             }
-            startbutton.innerHTML = 'start predictions';
-            return;
-        }
-
-        if (streaming && !predicting) {
-            logToServer({"name": "capture button starting predictions"});
-            video.setAttribute('hidden', true);
-            overlay.removeAttribute('hidden');
             predicting = true;
             startbutton.innerHTML = 'reset';
-            video.play();
-            video.setAttribute('width', width);
-            video.setAttribute('height', height);
-            pause(500).then(predictPositions);
             ev.preventDefault();
             return;
         }
 
-        logToServer({"name": "capture button reload"});
         location.reload();
     }
 
     function handleStream(stream) {
         video.srcObject = stream;
         streaming = true;
-        logToServer({"name": "stream started"})
+        video.play()
+        pause(1000).then(predictPositions);
     }
 
     function predictPositions() {
-        logToServer({
-            "name": "started prediction"
-        });
+        logToServer({"name": "started prediction"});
 
         var canvasData = noOverlay.toDataURL('image/png');
         if (canvasData.length < 10000){
@@ -87,17 +67,18 @@ function startUngank() {
             url: "https://ungank.com/predict",
             data: {
                 userID: userID,
-                imgBase64: canvasData,
-                x0: 1,
-                x1: 1,
-                y0: 1,
-                y1: 1,
+                imgBase64: canvasData
             }
         }).done(function (d) {
-            if (!("predictions" in d) || d["predictions"].length === 0){
+            if (!("predictions" in d)){
                 return;
             }
-            predictions = d["predictions"];
+            if (d["predictions"].length === 0) {
+                predictions = [0,0,"r"]
+            } else {
+                predictions = d["predictions"];
+            }
+
             var key;
             for (key in heatmap) {
                 if (heatmap.hasOwnProperty(key) && heatmap[key] >= 1) {
@@ -124,6 +105,7 @@ function startUngank() {
     }
 
     function logToServer(event) {
+        event["userID"] = userID
         $.ajax({
             type: "POST",
             url: "https://ungank.com/log",
@@ -132,7 +114,6 @@ function startUngank() {
         })
     }
 
-
     console.log("starting up");
     video = document.getElementById('video');
     startbutton = document.getElementById('startbutton');
@@ -140,16 +121,15 @@ function startUngank() {
 
     var fills = [
         '#00000000',
-        '#99FF0011',
-        '#FFFF0022',
-        '#FF880033',
-        '#FF330044',
+        '#FF000022',
+        '#FF000033',
+        '#FF000044',
+        '#FF000055',
         '#FF000077'
     ];
 
     function drawSquares() {
         sctx.beginPath();
-        sctx.lineWidth = "1";
         var key;
         for (key in heatmap) {
             if (heatmap.hasOwnProperty(key)) {
@@ -159,11 +139,19 @@ function startUngank() {
                 sctx.fillRect(x * 30 - 15, y * 30 - 15, 30, 30);
             }
         }
+        // alignment rectangle
+        sctx.rect(20, 20, 260, 260);
+        sctx.stroke();
     }
 
     overlay = document.getElementById('overlay');
     noOverlay = document.getElementById('noOverlay');
     sctx = overlay.getContext('2d');
+    // alignment rectangle
+    sctx.lineWidth = "1";
+    sctx.strokeStyle = '#00FF00FF'
+    sctx.rect(20, 20, 260, 260);
+    sctx.stroke();
     nsctx = noOverlay.getContext('2d');
     var i;
     video.addEventListener('play',
@@ -187,4 +175,14 @@ function startUngank() {
 
                 }, 20);
         }, false);
+
+    function loadAndDrawImage(url, ctx){
+        var image = new Image();
+        image.onload = function()
+        {
+            ctx.drawImage(image, 0, 0);
+        }
+        image.src = url;
+    }
+    loadAndDrawImage("../static/map-holder.png", sctx);
 }

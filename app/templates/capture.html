@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <meta name="description" content="">
     <title></title>
     <script src="../static/scripts/capture.js" type="text/javascript"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -20,58 +20,77 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
     <link rel="manifest" href="../static/site.webmanifest">
 
-    <script src="https://browser.sentry-cdn.com/5.15.4/bundle.min.js" integrity="sha384-Nrg+xiw+qRl3grVrxJtWazjeZmUwoSt0FAVsbthlJ5OMpx0G08bqIq3b/v0hPjhB" crossorigin="anonymous">
+    <script src="https://browser.sentry-cdn.com/5.15.4/bundle.min.js"
+            integrity="sha384-Nrg+xiw+qRl3grVrxJtWazjeZmUwoSt0FAVsbthlJ5OMpx0G08bqIq3b/v0hPjhB" crossorigin="anonymous">
     </script>
-
 </head>
 <body>
-<script>Sentry.init({ dsn: 'https://544b4da6c23f44ebaa42c10207d293e2@o370311.ingest.sentry.io/5179570' });</script>
+<script>Sentry.init({dsn: 'https://544b4da6c23f44ebaa42c10207d293e2@o370311.ingest.sentry.io/5179570'});</script>
 
 <div id="layout" class="pure-g">
     <div class="sidebar pure-u-1 pure-u-md-1-4">
+
         <div class="header">
-            <canvas id="overlay" height="300px" width="300px" hidden></canvas>
+            <canvas id="overlay" height="300px" width="300px"></canvas>
             <canvas id="noOverlay" height="300px" width="300px" hidden></canvas>
-            <video id="video" playsinline controls>Video stream not available.</video>
+            <video id="video" playsinline controls hidden>Video stream not available.</video>
+
             <nav class="nav">
                 <ul class="nav-list">
                     <li class="nav-item">
-                        <button id="startbutton" class="pure-button">Locate Map</button>
+                        <button id="startbutton" class="pure-button">Start Predictions</button>
                     </li>
                 </ul>
             </nav>
-            <p id="error"></p>
+            <h4>Point your phone towards the map and tap START PREDICTIONS.</h4>
+            <h4><a href="https://ungank.com/instructions">Instructions Page</a></h4>
         </div>
     </div>
 
     <div class="content pure-u-1 pure-u-md-3-4">
-        <div>
             <div class="posts">
                 <section class="post">
-                    <h2 class="post-title">Instructions</h2>
-
+                    <h2 class="post-title">Blatantly Targeted Ads</h2>
                     <div class="post-description">
                         <p>
-                            1. Ungank uses your mobile device's camera. On Apple devices only the Safari web browser
+                            Buy some cool stuff, support the website and deep learning research!
+                        </p>
+                    </div>
+                    <div class="swag">
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B07WPS8QRV&asins=B07WPS8QRV&linkId=db962d65f3b38b22557a621ab74de925&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B01M0QNRMJ&asins=B01M0QNRMJ&linkId=59e9a1d40cf2ab1d3c2172adca424f09&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B078MFXVST&asins=B078MFXVST&linkId=2763db9bb470c6502986038aabefb0c0&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B07SZ2RJ3L&asins=B07SZ2RJ3L&linkId=bf1a1a81f6f9eb9241388f0b7b4b4e33&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B076Y322K7&asins=B076Y322K7&linkId=0e2b659aed35ed20d0eb20116c489676&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                        <iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ac&ref=tf_til&ad_type=product_link&tracking_id=ungank-20&marketplace=amazon&region=US&placement=B07ZTPD24K&asins=B07ZTPD24K&linkId=211af891c049e5a7b8eeda7f33716f18&show_border=false&link_opens_in_new_window=false&price_color=333333&title_color=0066c0&bg_color=ffffff">
+                        </iframe>
+                    </div>
+
+                    <h2 class="post-title">Instructions</h2>
+                    <div class="post-description">
+
+                        <p>
+                            1. Ungank uses your mobile device's camera. On iOS devices only the Safari web browser
                             supports this functionality. On Android devices we recommend the Chrome web browser.
                         </p>
                         <p>
-                            2. Press the LOCATE MAP button, the browser will request permission to use your device camera.
+                            2. Press the START PREDICTIONS button, the browser will request permission to use your
+                            device camera.
 
                         </p>
-                        <img src='../static/locate-map.png' alt="LOCATE MAP">
                         <p>
-                            3. Place the phone in front of your monitor, with the League of Legends map occupying most
-                            of the video display. We recommend using an adjustable phone stand.
-                        </p>
-                        <img src='../static/place-device.png' alt="START PREDICTIONS">
-                        <p>
-                            4. Press the START PREDICTIONS button to begin predictions.
+                            3. Place the phone in front of your monitor, with the League of Legends map aligned inside
+                            the
+                            green square.
                         </p>
                     </div>
                 </section>
             </div>
-        </div>
     </div>
     <canvas id="canvas" hidden></canvas>
     <script>startUngank()</script>

@@ -25,7 +25,7 @@ func main() {
 	http.HandleFunc("/", serveHero)
 	http.HandleFunc("/capture", serveCapture)
 	http.HandleFunc("/predict", servePredict)
-	http.HandleFunc("/blog", serveBlog)
+	http.HandleFunc("/instructions", serveInstructions)
 	http.HandleFunc("/log", serveLog)
 	http.HandleFunc("/test", serveTest)
 
@@ -36,9 +36,9 @@ func main() {
 	}
 }
 
-func serveBlog(w http.ResponseWriter, r *http.Request) {
+func serveInstructions(w http.ResponseWriter, r *http.Request) {
 	log.Println("serving blog")
-	http.ServeFile(w, r, filepath.Join("templates", "blog.html"))
+	http.ServeFile(w, r, filepath.Join("templates", "instructions.html"))
 }
 
 func serveHero(w http.ResponseWriter, r *http.Request) {

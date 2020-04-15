@@ -80,7 +80,7 @@ h3 {
 .header {
     text-align: center;
     top: auto;
-    margin: 3em auto;
+    margin: 1em auto;
 }
 
 .sidebar {
@@ -224,4 +224,13 @@ h3 {
 
 #overlay{
     background: #4d85d1;
+}
+iframe {
+    margin: 10px;
+}
+
+.swag {
+    background: #999999;
+    display: inline-block
+
 }
